@@ -5,7 +5,12 @@
     <div class="cotainer">
         <div class="row justify-content-center">
             <div class="col-md-4">
-                <form action="" method="">
+                <form method="POST" action="" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    {% for error in form.username.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
                             {{ form.username.label(class_="input-group-text") }}
@@ -13,12 +18,16 @@
                         {{ form.username(id="username", class_="form-control") }}
                     </div>
 
+                    {% for error in form.password.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
                             {{ form.password.label(class_="input-group-text") }}
                         </div>
-                        {{ form.username(id="password", class_="form-control") }}
+                        {{ form.password(id="password", class_="form-control") }}
                     </div>
+
                     {{ form.submit(class_="btn btn-secondary btn-block") }}
                 </form>
             </div>
