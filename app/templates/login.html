@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="login-form mt-5">
+    <div class="cotainer">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <form action="" method="">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            {{ form.username.label(class_="input-group-text") }}
+                        </div>
+                        {{ form.username(id="username", class_="form-control") }}
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            {{ form.password.label(class_="input-group-text") }}
+                        </div>
+                        {{ form.username(id="password", class_="form-control") }}
+                    </div>
+                    {{ form.submit(class_="btn btn-secondary btn-block") }}
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
