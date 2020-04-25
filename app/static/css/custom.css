@@ -14,3 +14,11 @@ form {
 .main_alert {
     margin-bottom: 0px;
 }
+
+.email_label {
+    width: 86px;
+}
+
+.password_label {
+    width: 86px;
+}
