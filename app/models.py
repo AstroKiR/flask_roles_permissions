@@ -9,6 +9,12 @@ def load_user(id):
     return User.query.get(int(id))
 
 
+role_permission = db.Table('role_permission',
+    db.Column('role_id', db.Integer, db.ForeignKey('role.id'), primary_key=True),
+    db.Column('permission_id', db.Integer, db.ForeignKey('permission.id'), primary_key=True)
+)
+
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
@@ -19,6 +25,7 @@ class User(UserMixin, db.Model):
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True, nullable=True)
     created_users = db.relationship('User', backref=db.backref('creator', remote_side='User.id'))
     created_permissions = db.relationship('Permission', backref=db.backref('creator'))
+    created_roles = db.relationship('Role', backref=db.backref('creator'))
 
     def __repr__(self):
         return '<User {}>'.format(self.username) 
@@ -39,3 +46,15 @@ class Permission(db.Model):
 
     def __repr__(self):
         return '<Permission {}>'.format(self.ability) 
+    
+
+class Role(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    rolename = db.Column(db.String(64), unique=True)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime())
+    permissions = db.relationship('Permission', secondary=role_permission, lazy='subquery', backref=db.backref('role', lazy=True))
+
+    def __repr__(self):
+        return '<Role {}>'.format(self.rolename) 
