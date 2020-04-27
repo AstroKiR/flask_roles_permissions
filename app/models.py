@@ -15,6 +15,12 @@ role_permission = db.Table('role_permission',
 )
 
 
+user_role = db.Table('user_role',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    db.Column('role_id', db.Integer, db.ForeignKey('role.id'), primary_key=True)
+)
+
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
@@ -26,6 +32,8 @@ class User(UserMixin, db.Model):
     created_users = db.relationship('User', backref=db.backref('creator', remote_side='User.id'))
     created_permissions = db.relationship('Permission', backref=db.backref('creator'))
     created_roles = db.relationship('Role', backref=db.backref('creator'))
+    roles = db.relationship('Role', secondary=user_role, lazy='subquery', backref=db.backref('users', lazy=True))
+
 
     def __repr__(self):
         return '<User {}>'.format(self.username) 
