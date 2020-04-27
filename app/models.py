@@ -54,7 +54,7 @@ class Role(db.Model):
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_at = db.Column(db.DateTime())
-    permissions = db.relationship('Permission', secondary=role_permission, lazy='subquery', backref=db.backref('role', lazy=True))
+    permissions = db.relationship('Permission', secondary=role_permission, lazy='subquery', backref=db.backref('roles', lazy=True))
 
     def __repr__(self):
         return '<Role {}>'.format(self.rolename) 
