@@ -30,10 +30,8 @@ class User(UserMixin, db.Model):
     updated_at = db.Column(db.DateTime())
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True, nullable=True)
     created_users = db.relationship('User', backref=db.backref('creator', remote_side='User.id'))
-    created_permissions = db.relationship('Permission', backref=db.backref('creator'))
     created_roles = db.relationship('Role', backref=db.backref('creator'))
     roles = db.relationship('Role', secondary=user_role, lazy='subquery', backref=db.backref('users', lazy=True))
-
 
     def __repr__(self):
         return '<User {}>'.format(self.username) 
@@ -45,12 +43,19 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
 
+class Area(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    areaname = db.Column(db.String(64), unique=True)
+    permissions = db.relationship('Permission', backref=db.backref('aria'))
+
+    def __repr__(self):
+        return '<Aria {}>'.format(self.areaname) 
+
+
 class Permission(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    ability = db.Column(db.String(64), unique=True)
-    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    created_at = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime())
+    ability = db.Column(db.String(64))
+    area_id = db.Column(db.Integer, db.ForeignKey('area.id'), nullable=False)
 
     def __repr__(self):
         return '<Permission {}>'.format(self.ability) 
