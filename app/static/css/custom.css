@@ -7,8 +7,7 @@ form {
 }
 
 .breadcrumb {
-    margin-bottom: 0;
-    background-color: transparent;
+    background-color: #f8f9fa !important;
 }
 
 .main_alert {
@@ -21,4 +20,19 @@ form {
 
 .password_label {
     width: 86px;
+}
+
+.create_user_lable {
+    width: 90px;
+}
+
+.create_user .card-header {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+    color: #495057;
+    padding: 5.25px 10px;
+}
+
+.create_user .card {
+    border-color: #ced4da;
 }

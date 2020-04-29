@@ -2,9 +2,9 @@ from flask import render_template, redirect, request, flash, url_for
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 
-from app import app
-from app.forms import LoginForm
-from app.models import User
+from app import app, db
+from app.forms import LoginForm, CreateUserForm
+from app.models import User, Role
 
 
 @app.route('/')
@@ -35,4 +35,33 @@ def login():
 @app.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
+
+
+@app.route('/users')
+def users():
+    users = User.query.all()
+    return render_template('users/users.html', users=users)
+
+
+@app.route('/create_user', methods=['GET', 'POST'])
+def create_user():
+    create_user_form = CreateUserForm()
+    if request.method == 'POST' and create_user_form.validate_on_submit():
+        user = User(
+            username=create_user_form.data['username'], 
+            email=create_user_form.data['email'],
+            creator_id = current_user.id)
+        user.set_password('test')
+        for role in request.form.getlist('roles'):
+            user.roles.append(Role.query.get(role))
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for('users')) 
+    roles = Role.query.all()
+    return render_template('users/create_user.html', form=create_user_form, roles=roles)
+
+
+@app.route('/roles')
+def roles():
+    return render_template('roles/roles.html')
