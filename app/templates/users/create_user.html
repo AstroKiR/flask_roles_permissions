@@ -3,14 +3,25 @@
 {% block content %}
 
 <div class="row justify-content-center create_user">
-    <div class="col-md-5">
-<nav aria-label="breadcrumb bg-light">
-    <ol class="breadcrumb pr-0 pl-0">
-        <li class="breadcrumb-item" aria-current="page"><span class="font-italic">System</span></li>
-        <li class="breadcrumb-item" aria-current="page"><a href="{{ url_for('users') }}">Users</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Create user</li>
-    </ol>
-</nav>
+    <div class="col-md-7">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul class="list-group mb-4">
+            {% for message in messages %}
+            <li class="list-group-item list-group-item-info">
+                {{ message }}
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        <nav aria-label="breadcrumb bg-light">
+            <ol class="breadcrumb pr-0 pl-0">
+                <li class="breadcrumb-item" aria-current="page"><span class="font-italic">System</span></li>
+                <li class="breadcrumb-item" aria-current="page"><a href="{{ url_for('users') }}">Users</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Create user</li>
+            </ol>
+        </nav>
         <form method="POST" action="" novalidate>
             {{ form.hidden_tag() }}
 

@@ -45,6 +45,7 @@ def users():
 
 
 @app.route('/create_user', methods=['GET', 'POST'])
+@login_required
 def create_user():
     create_user_form = CreateUserForm()
     if request.method == 'POST' and create_user_form.validate_on_submit():
@@ -57,10 +58,11 @@ def create_user():
             user.roles.append(Role.query.get(role))
         db.session.add(user)
         db.session.commit()
+        flash('User successfully created')
         return redirect(url_for('users')) 
     roles = Role.query.all()
     return render_template('users/create_user.html', form=create_user_form, roles=roles)
-
+    
 
 @app.route('/roles')
 def roles():
