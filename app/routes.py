@@ -64,6 +64,44 @@ def create_user():
     return render_template('users/create_user.html', form=create_user_form, roles=roles)
     
 
+@app.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def edit_user(user_id):
+    roles = Role.query.all()
+    user = User.query.get(user_id)
+    user_roles = user.roles
+    edit_user_form = EditUserForm(user.username, user.email)
+    edit_flag = False
+
+    if request.method == 'POST' and edit_user_form.validate_on_submit():
+        user_roles_list = [] 
+        for role in user_roles:
+            user_roles_list.append(role.id)
+        user_roles_set = set(user_roles_list)
+        checked_roles_set = set(map(int, request.form.getlist('roles')))
+        if user_roles_set ^ checked_roles_set:
+            user.roles.clear()
+            for new_role in checked_roles_set:
+                user.roles.append(Role.query.get(new_role))
+            edit_flag = True
+        if edit_user_form.original_username != edit_user_form.data['username']:
+            user.username = edit_user_form.data['username']
+            edit_flag = True
+        if edit_user_form.original_email != edit_user_form.data['email']:
+            user.email = edit_user_form.data['email']
+            edit_flag = True
+        if edit_flag:
+            user.creater_id = current_user.id
+            user.updated_at = datetime.utcnow()
+            db.session.commit()
+            flash('User data successfully changed')
+        return redirect(url_for('edit_user', user_id=user.id)) 
+    elif request.method == 'GET':
+        edit_user_form.username.data = user.username
+        edit_user_form.email.data = user.email 
+    return render_template('users/edit_user.html', form=edit_user_form, roles=roles, user_roles=user_roles)
+
+
 @app.route('/roles')
 def roles():
     return render_template('roles/roles.html')
