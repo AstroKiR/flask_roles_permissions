@@ -22,28 +22,20 @@
         </nav>
 
         <nav class="navbar navbar-expand-lg navbar-light bg-light pr-0 pl-0 mb-2">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample09"
-                aria-controls="navbarsExample09" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarsExample09">
+            <div>
                 <ul class="nav nav-pills mr-auto">
                     <li class="nav-item">
-                        <a class="btn btn-outline-secondary" href="{{ url_for('create_user') }}" role="button">Create user</a>
+                        <a class="btn btn-outline-secondary" href="{{ url_for('create_user') }}" role="button"><i class="fas fa-user-plus"></i></a>
                     </li>
                 </ul>
-                <form class="form-inline my-2 my-md-0">
-                    <input class="form-control" type="text" placeholder="Search" aria-label="Поиск">
-                </form>
             </div>
         </nav>
 
         <ul class="list-group">
             {% for user in users %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
-                <a href="{{ url_for('edit_user', user_id=user.id) }}">{{ user.username }}</a>
                 <span>
+                    <span class="mr-3">{{ user.username }}</span>
                     {% for role in user.roles %}
                     {% if role.rolename == 'admin' %}
                     <span class="badge badge-danger">{{ role.rolename }}</span>
@@ -51,6 +43,31 @@
                     <span class="badge badge-secondary">{{ role.rolename }}</span>
                     {% endif %}
                     {% endfor %}
+                </span>
+                <span>
+                    <a href="{{ url_for('edit_user', user_id=user.id) }}" class="btn btn-secondary"><i class="fas fa-user-edit"></i></a>
+                    <form action="{{ url_for('delete_user') }}" method="POST" class="d-inline-block">
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+
+                        <div class="modal fade" id="del_user_{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="user_{{ user.id }}" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-body text-center">
+                                        Are you sure you want to delete <span class="font-weight-bold">{{ user.username }}</span> ?
+                                    </div>
+                                    <div class="modal-footer row row_confirm">
+                                        <div class="col-sm">
+                                            <button type="button" class="btn btn-primary btn-sm btn-block" data-dismiss="modal">No</button>
+                                        </div>
+                                        <div class="col-sm">
+                                            <button type="submit" class="btn btn-danger btn-sm btn-block">Yes</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" data-toggle="modal" data-target="#del_user_{{user.id}}" class="btn btn-dark"><i class="fas fa-user-times"></i></button> 
+                    </form>
                 </span>
             </li>
             {% endfor %}

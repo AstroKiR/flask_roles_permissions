@@ -39,6 +39,7 @@ def logout():
 
 
 @app.route('/users')
+@login_required
 def users():
     users = User.query.all()
     return render_template('users/users.html', users=users)
@@ -91,7 +92,7 @@ def edit_user(user_id):
             user.email = edit_user_form.data['email']
             edit_flag = True
         if edit_flag:
-            user.creater_id = current_user.id
+            user.creator_id = current_user.id
             user.updated_at = datetime.utcnow()
             db.session.commit()
             flash('User data successfully changed')
@@ -100,6 +101,20 @@ def edit_user(user_id):
         edit_user_form.username.data = user.username
         edit_user_form.email.data = user.email 
     return render_template('users/edit_user.html', form=edit_user_form, roles=roles, user_roles=user_roles)
+
+
+@app.route('/delete_user', methods=['POST'])
+@login_required
+def delete_user():
+    if request.method == 'POST':
+        user_id = request.form['user_id']
+        user = User.query.get(user_id)
+        print(user)
+        user_name = user.username
+        db.session.delete(user)
+        db.session.commit()
+        flash(f'User {user_name} successfully deleted')
+    return redirect(url_for('users'))
 
 
 @app.route('/roles')
