@@ -119,5 +119,25 @@ def delete_user():
 
 
 @app.route('/roles')
+@login_required
 def roles():
-    return render_template('roles/roles.html')
+    roles = Role.query.all()
+    return render_template('roles/roles.html', roles=roles)
+
+
+@app.route('/create_role', methods=['GET', 'POST'])
+@login_required
+def create_role():
+    return redirect(url_for('roles'))
+
+
+@app.route('/edit_role/<int:role_id>', methods=['GET', 'POST'])
+@login_required
+def edit_role(role_id):
+    return redirect(url_for('roles'))
+
+
+@app.route('/delete_role', methods=['POST'])
+@login_required
+def delete_role():
+    return redirect(url_for('roles'))
