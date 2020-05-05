@@ -153,4 +153,11 @@ def edit_role(role_id):
 @app.route('/delete_role', methods=['POST'])
 @login_required
 def delete_role():
+    if request.method == 'POST':
+        role_id = request.form['role_id']
+        role = Role.query.get(role_id)
+        role_name = role.rolename
+        db.session.delete(role)
+        db.session.commit()
+        flash(f'Role {role_name} successfully deleted')
     return redirect(url_for('roles'))
