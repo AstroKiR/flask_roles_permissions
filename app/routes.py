@@ -4,8 +4,8 @@ from werkzeug.urls import url_parse
 from datetime import datetime
 
 from app import app, db
-from app.forms import LoginForm, CreateUserForm, EditUserForm
-from app.models import User, Role
+from app.forms import LoginForm, CreateUserForm, EditUserForm, CreateRoleForm
+from app.models import User, Role, Area, Permission
 
 
 @app.route('/')
@@ -110,7 +110,6 @@ def delete_user():
     if request.method == 'POST':
         user_id = request.form['user_id']
         user = User.query.get(user_id)
-        print(user)
         user_name = user.username
         db.session.delete(user)
         db.session.commit()
@@ -128,7 +127,21 @@ def roles():
 @app.route('/create_role', methods=['GET', 'POST'])
 @login_required
 def create_role():
-    return redirect(url_for('roles'))
+    create_role_form = CreateRoleForm() 
+    all_areas = Area.query.all()
+    areas = {} 
+    for area in all_areas:
+        areas[area.areaname] = Permission.query.filter_by(area_id=area.id).all()
+
+    if request.method == 'POST' and create_role_form.validate_on_submit():
+        permissions = list(map(int, request.form.getlist('permission')))
+        role = Role(rolename=create_role_form.rolename.data, creator_id=current_user.id)
+        for permission in permissions:
+            role.permissions.append(Permission.query.get(permission))
+        db.session.add(role)
+        db.session.commit()
+        return redirect(url_for('roles'))
+    return render_template('roles/create_role.html', form=create_role_form, areas=areas)
 
 
 @app.route('/edit_role/<int:role_id>', methods=['GET', 'POST'])

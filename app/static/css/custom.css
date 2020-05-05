@@ -36,3 +36,7 @@ form {
 .create_user .card {
     border-color: #ced4da;
 }
+
+.perms_header {
+    padding-left: 10px;
+}

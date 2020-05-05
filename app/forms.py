@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, BooleanField 
 from wtforms.validators import ValidationError, DataRequired, Email
 
-from app.models import User
+from app.models import User, Role
 
 
 class LoginForm(FlaskForm):
@@ -49,3 +49,13 @@ class EditUserForm(FlaskForm):
             user = User.query.filter_by(email=self.email.data).first()
             if user is not None:
                 raise ValidationError('Please use a different email.')
+
+
+class CreateRoleForm(FlaskForm):
+    rolename = StringField('Rolename', validators=[DataRequired()])
+    submit = SubmitField('Save')
+
+    def validate_rolename(self, field):
+        role = Role.query.filter_by(rolename=field.data).all()
+        if role:
+            raise ValidationError('This rolename already exists.')
