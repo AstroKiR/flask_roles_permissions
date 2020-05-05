@@ -58,7 +58,7 @@ class Permission(db.Model):
     area_id = db.Column(db.Integer, db.ForeignKey('area.id'), nullable=False)
 
     def __repr__(self):
-        return '<Permission {}>'.format(self.ability) 
+        return f'<Permission {Area.query.get(self.area_id).areaname}:{self.ability}>' 
     
 
 class Role(db.Model):
