@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row justify-content-center create_user">
+    <div class="col-md-6">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul class="list-group mb-4">
+            {% for message in messages %}
+            <li class="list-group-item list-group-item-info">
+                {{ message }}
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        <nav aria-label="breadcrumb bg-light">
+            <ol class="breadcrumb pr-0 pl-0">
+                <li class="breadcrumb-item" aria-current="page"><span class="font-italic">System</span></li>
+                <li class="breadcrumb-item" aria-current="page"><a href="{{ url_for('roles') }}">Roles</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Edit Role</li>
+            </ol>
+        </nav>
+        <form method="POST" action="" novalidate>
+            {{ form.hidden_tag() }}
+            {% for error in form.rolename.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    {{ form.rolename.label(class_="input-group-text create_user_lable") }}
+                </div>
+                {{ form.rolename(class_="form-control") }}
+            </div>
+
+            {% for area_name, area_permissions in areas.items() %}
+            <div class="card mt-3">
+                <div class="card-header">{{ area_name }}</div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for permission in area_permissions %}
+                            <div class="input-group mb-2 mt-2">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        <input name="permission" type="checkbox" {{ permission.checked }} value="{{permission.id}}" id="permission_{{permission.id}}">
+                                    </div>
+                                </div>
+                                <label class="form-control bg-light" for="permission_{{ permission.id }}">{{ permission.ability }}</label>
+                            </div>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+
+            {{ form.submit(class_="btn btn-block btn-secondary mt-3") }}
+        </form>
+    </div>
+</div>
+{% endblock %}

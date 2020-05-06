@@ -4,7 +4,7 @@ from werkzeug.urls import url_parse
 from datetime import datetime
 
 from app import app, db
-from app.forms import LoginForm, CreateUserForm, EditUserForm, CreateRoleForm
+from app.forms import LoginForm, CreateUserForm, EditUserForm, CreateRoleForm, EditRoleForm
 from app.models import User, Role, Area, Permission
 
 
@@ -52,7 +52,7 @@ def create_user():
     create_user_form = CreateUserForm()
     if request.method == 'POST' and create_user_form.validate_on_submit():
         user = User(
-            username=create_user_form.data['username'], 
+            username=create_user_form.data['username'],
             email=create_user_form.data['email'],
             creator_id = current_user.id)
         user.set_password('test')
@@ -61,10 +61,10 @@ def create_user():
         db.session.add(user)
         db.session.commit()
         flash('User successfully created')
-        return redirect(url_for('users')) 
+        return redirect(url_for('users'))
     roles = Role.query.all()
     return render_template('users/create_user.html', form=create_user_form, roles=roles)
-    
+
 
 @app.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
 @login_required
@@ -76,7 +76,7 @@ def edit_user(user_id):
     edit_flag = False
 
     if request.method == 'POST' and edit_user_form.validate_on_submit():
-        user_roles_list = [] 
+        user_roles_list = []
         for role in user_roles:
             user_roles_list.append(role.id)
         user_roles_set = set(user_roles_list)
@@ -97,10 +97,10 @@ def edit_user(user_id):
             user.updated_at = datetime.utcnow()
             db.session.commit()
             flash('User data successfully changed')
-        return redirect(url_for('edit_user', user_id=user.id)) 
+        return redirect(url_for('edit_user', user_id=user.id))
     elif request.method == 'GET':
         edit_user_form.username.data = user.username
-        edit_user_form.email.data = user.email 
+        edit_user_form.email.data = user.email
     return render_template('users/edit_user.html', form=edit_user_form, roles=roles, user_roles=user_roles)
 
 
@@ -127,9 +127,9 @@ def roles():
 @app.route('/create_role', methods=['GET', 'POST'])
 @login_required
 def create_role():
-    create_role_form = CreateRoleForm() 
+    create_role_form = CreateRoleForm()
     all_areas = Area.query.all()
-    areas = {} 
+    areas = {}
     for area in all_areas:
         areas[area.areaname] = Permission.query.filter_by(area_id=area.id).all()
 
@@ -147,7 +147,44 @@ def create_role():
 @app.route('/edit_role/<int:role_id>', methods=['GET', 'POST'])
 @login_required
 def edit_role(role_id):
-    return redirect(url_for('roles'))
+    edit_flag = False
+    role = Role.query.get(role_id)
+    edit_role_form = EditRoleForm(role.rolename)
+    role_permissions_ids = []
+    for permission in role.permissions:
+        role_permissions_ids.append(permission.id)
+    all_areas = Area.query.all()
+    areas = {}
+    for area in all_areas:
+        perms = Permission.query.filter_by(area_id=area.id).all()
+        areas[area.areaname] = []
+        for perm in perms:
+            checked = 'checked' if perm in role.permissions else ''
+            areas[area.areaname].append({
+                'id': perm.id,
+                'ability': perm.ability,
+                'checked': checked})
+    if request.method == 'GET':
+        edit_role_form.rolename.data = role.rolename
+    elif request.method == 'POST' and edit_role_form.validate_on_submit():
+        new_role_permissions_ids = []
+        for new_permission in request.form.getlist('permission'):
+            new_role_permissions_ids.append(int(new_permission))
+        if set(role_permissions_ids) ^ set(new_role_permissions_ids):
+            role.permissions.clear()
+            for new_permission_id in new_role_permissions_ids:
+                role.permissions.append(Permission.query.get(new_permission_id))
+            edit_flag = True 
+        if edit_role_form.original_rolename != edit_role_form.rolename.data:
+            role.rolename = edit_role_form.rolename.data
+            edit_flag = True
+        if edit_flag:
+            role.updated_at = datetime.utcnow()
+            role.creator_id = current_user.id
+            db.session.commit()
+            flash('Role successfully changed')
+            return redirect(url_for('edit_role', role_id=role.id))
+    return render_template('roles/edit_role.html', form=edit_role_form, areas=areas)
 
 
 @app.route('/delete_role', methods=['POST'])

@@ -59,3 +59,18 @@ class CreateRoleForm(FlaskForm):
         role = Role.query.filter_by(rolename=field.data).all()
         if role:
             raise ValidationError('This rolename already exists.')
+
+
+class EditRoleForm(FlaskForm):
+    rolename = StringField('Rolename', validators=[DataRequired()])
+    submit = SubmitField('Save')
+
+    def __init__(self, original_rolename, *args, **kwargs):
+        super(EditRoleForm, self).__init__(*args, **kwargs)
+        self.original_rolename = original_rolename
+
+    def validate_rolename(self, rolename):
+        if rolename.data != self.original_rolename:
+            role = Role.query.filter_by(rolename=self.rolename.data).first()
+            if role is not None:
+                raise ValidationError('Please use a different Rolename.')
