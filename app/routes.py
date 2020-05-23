@@ -4,7 +4,7 @@ from werkzeug.urls import url_parse
 from datetime import datetime
 
 from app import app, db
-from app.forms import LoginForm, CreateUserForm, EditUserForm, CreateRoleForm, EditRoleForm
+from app.forms import LoginForm, CreateUserForm, EditUserForm, CreateRoleForm, EditRoleForm, ProfileForm
 from app.models import User, Role, Area, Permission
 
 
@@ -198,3 +198,32 @@ def delete_role():
         db.session.commit()
         flash(f'Role {role_name} successfully deleted')
     return redirect(url_for('roles'))
+
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    profile_form = ProfileForm(current_user.username, current_user.email)
+    if request.method == 'GET':
+        profile_form.username.data = current_user.username
+        profile_form.email.data = current_user.email
+    if request.method == 'POST' and profile_form.validate_on_submit():
+        user = User.query.get(current_user.id)
+        edit_flag = False
+
+        if profile_form.username.data != user.username:
+            user.username = profile_form.username.data
+            edit_flag = True
+
+        if profile_form.email.data != user.email:
+            user.email = profile_form.email.data
+            edit_flag = True
+
+        if profile_form.password.data:
+            user.set_password(profile_form.password.data)
+            edit_flag = True
+        
+        if edit_flag:
+            db.session.commit()
+            flash('Profile successfully changed')
+
+    return render_template('profile.html', form=profile_form)

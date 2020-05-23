@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, BooleanField 
-from wtforms.validators import ValidationError, DataRequired, Email
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 
 from app.models import User, Role
 
@@ -74,3 +74,28 @@ class EditRoleForm(FlaskForm):
             role = Role.query.filter_by(rolename=self.rolename.data).first()
             if role is not None:
                 raise ValidationError('Please use a different Rolename.')
+
+
+class ProfileForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('New password', validators=[EqualTo('password_confirm', message='Passwords must match')])
+    password_confirm = PasswordField('Repeat password')
+    submit = SubmitField('Save')
+
+    def __init__(self, original_username, original_email, *args, **kwargs):
+        super(ProfileForm, self).__init__(*args, **kwargs)
+        self.original_username = original_username
+        self.original_email = original_email
+
+    def validate_username(self, username):
+        if username.data != self.original_username:
+            user = User.query.filter_by(username=self.username.data).first()
+            if user is not None:
+                raise ValidationError('Please use a different username.')
+
+    def validate_email(self, email):
+        if email.data != self.original_email:
+            user = User.query.filter_by(email=self.email.data).first()
+            if user is not None:
+                raise ValidationError('Please use a different email.')
